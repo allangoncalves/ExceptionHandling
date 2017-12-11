@@ -28,7 +28,7 @@ def get_exception_name(node):
 		return get_exception_name(node.func)
 
 def saveCSV(name, data):
-	with open(name+".csv", "w") as file:
+	with open(name+".csv", "wb") as file:
 		writer = csv.writer(file, delimiter=';')
 		writer.writerows(data)
 
