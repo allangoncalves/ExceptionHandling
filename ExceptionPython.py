@@ -92,7 +92,7 @@ class FunctionVisitor(ast.NodeVisitor):
 				raise_row = []
 				self.data['raise'] += 1
 				
-				exception_name = get_exception_name(node.type) if node.type else 'null'
+				exception_name = get_exception_name(node.type) if node.type else None
 				defby = 'sys' if exception_name in exception_list else 'usr'
 				
 				raise_row.extend((self.func_name, exception_name, defby))
@@ -101,7 +101,7 @@ class FunctionVisitor(ast.NodeVisitor):
 				reraise_row = []
 				self.data['re-raise'] += 1
 				
-				exception_name = get_exception_name(node.type) if node.type else 'null'
+				exception_name = get_exception_name(node.type) if node.type else None
 				defby = 'sys' if exception_name in exception_list else 'usr'
 
 				reraise_row.extend((self.func_name, self.handler_id_number, exception_name, defby))
@@ -110,11 +110,12 @@ class FunctionVisitor(ast.NodeVisitor):
 			raise_row = []
 			self.data['raise'] += 1
 			
-			exception_name = get_exception_name(node.type) if node.type else 'null'
+			exception_name = get_exception_name(node.type) if node.type else None
 			defby = 'sys' if exception_name in exception_list else 'usr'
 			
 			raise_row.extend((self.func_name, exception_name, defby))
 			raise_data.append(raise_row)
+		defby = None
 
 
 	def visit_TryExcept(self, node):
@@ -148,7 +149,7 @@ class FunctionVisitor(ast.NodeVisitor):
 							exception_row = []
 							name = get_exception_name(exception)
 							#DEF PELO SISTEMA OU USUARIO
-							defby = 'sys' if exception in exception_list else 'usr'
+							defby = 'sys' if name in exception_list else 'usr'
 							#CRIANDO LINHA
 							exception_row.extend((self.func_name, self.handler_id_number, name, defby, 0))
 							#ADICIONANDO A TABELA
@@ -167,6 +168,7 @@ class FunctionVisitor(ast.NodeVisitor):
 				##ATRIBUICAO DA LINHA A TABELA
 				handler_data.append(handler_row)
 				self.visitor.count = 0
+				defby = None
 		##FIM ANALISE DOS HANDLERS
 
 		##INICIO ANALISE TRY BODY
