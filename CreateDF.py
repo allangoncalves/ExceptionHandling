@@ -4,16 +4,16 @@ import pandas as pd
 import numpy as np
 import csv
 import matplotlib.pyplot as plt
+import sys
+import os
 
-projects = {}
+folder = '.' if len(sys.argv) < 2 else sys.argv[1]
+projects= {}
 
-##DEFINIR PROJETOS E VERSOES
-projects['pandas'] = ['0.19.2', '0.20.0', '0.20.1',
-						'0.20.2', '0.20.3', '0.21.0',
-						'0.21.1',]
-##
+projects[folder] = os.listdir(folder)
 
 for project, versions in projects.iteritems():
+	print projects, versions
 	
 	df_1 = pd.DataFrame(columns=['methods w/ raise', 'methods w/o raise',
 								'methods w/o handler', 'methods w/ handler',
@@ -25,11 +25,11 @@ for project, versions in projects.iteritems():
 	df_5 = pd.DataFrame(columns=['re-raises', 're-raise w/ sys', 're-raise w/ user', 'unique re-raised', 'unique sys', 'unique users'])
 	for version in versions:
 
-		df_functions = pd.read_csv(project+'/'+project+'-'+version+'/Function.csv', sep=';')
-		df_handler = pd.read_csv(project+'/'+project+'-'+version+'/Handler.csv', sep=';')
-		df_exception = pd.read_csv(project+'/'+project+'-'+version+'/Exception.csv', sep=';')
-		df_raise = pd.read_csv(project+'/'+project+'-'+version+'/Raise.csv', sep=';')
-		df_reraise = pd.read_csv(project+'/'+project+'-'+version+'/Reraise.csv', sep=';')
+		df_functions = pd.read_csv(project+'/'+version+'/Function.csv', sep=';')
+		df_handler = pd.read_csv(project+'/'+version+'/Handler.csv', sep=';')
+		df_exception = pd.read_csv(project+'/'+version+'/Exception.csv', sep=';')
+		df_raise = pd.read_csv(project+'/'+version+'/Raise.csv', sep=';')
+		df_reraise = pd.read_csv(project+'/'+version+'/Reraise.csv', sep=';')
 
 		##DF FUNCTION.CSV
 		df_1.loc[version] = [df_functions[df_functions['raise'] > 0]['id'].count(),
@@ -74,7 +74,6 @@ for project, versions in projects.iteritems():
 							df_reraise[df_reraise['user/sys'] == 'sys']['exception_name'].nunique(),
 							df_reraise[df_reraise['user/sys'] == 'usr']['exception_name'].nunique(),]
 
-	
 	fig1 = df_1.plot(kind='line', marker='o').get_figure()
 	fig2 = df_2.plot(kind='line', marker='o').get_figure()
 	fig3 = df_3.plot(kind='line', marker='o').get_figure()
