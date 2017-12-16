@@ -2,22 +2,21 @@
 # -*- coding: utf-8 -*-
 import ast
 import csv
-
+import os
 
 exception_list = []
 
-func_data = [['name','id','raise', 're-raise','try','handlers','size']]
+func_data = []
 
-try_data = [['func_name','id','size','handlers']]
+try_data = []
 
-handler_data = [['func_name','id_try','id','size','exceptions']]
+handler_data = []
 
-exception_data = [['name_func','id_handler','name','user/sys','tuple']]
+exception_data = []
 
-raise_data = [['name_func','name_exception','user/sys']]
+raise_data = []
 
-reraise_data = [['name_func','id_handler','exception_name','user/sys']]
-
+reraise_data = []
 
 def get_exception_name(node):
 	if isinstance(node, ast.Name):
@@ -32,16 +31,12 @@ def saveCSV(name, data):
 		writer = csv.writer(file, delimiter=';')
 		writer.writerows(data)
 
-def loadExceptions():
-	with open('ExceptionsDB.txt', 'rb') as file:
-		for exception in file:
-			exception_list.append(exception.split('\n')[0])
+
 	#print exception_list, len(exception_list)
 
 def getDirectories(projectFolder):
-		os.chdir(projectFolder)
 		directories = []
-		for directory, folderName, file in os.walk("."):
+		for directory, folderName, file in os.walk(projectFolder):
 			if 'test' not in directory:
 				for name in file:
 					if name.endswith(".py"):
@@ -53,9 +48,58 @@ def newDict():
 	return {'try': 0, 'except-block': 0, 'generic-except': 0, 'tuple-exception': 0, 'raise': 0,
 			're-raise': 0, 'statements': 0}.copy()
 
+def loadExceptions():
+	with open('ExceptionsDB.txt', 'rb') as file:
+		for exception in file:
+			exception_list.append(exception.split('\n')[0])
+
+def loadHead():
+	global func_data, try_data, handler_data, exception_data, raise_data, reraise_data
+	
+	func_data = [['name','id','raise', 're-raise','try','handlers','size']]
+
+	try_data = [['func_name','id','size','handlers']]
+
+	handler_data = [['func_name','id_try','id','size','exceptions']]
+
+	exception_data = [['name_func','id_handler','name','user/sys','tuple']]
+
+	raise_data = [['name_func','name_exception','user/sys']]
+
+	reraise_data = [['name_func','id_handler','exception_name','user/sys']]
+
+class metricCalculator:
+
+	def run(self, folder):
+
+		directories = getDirectories(folder)
+		visitor = FunctionVisitor()
+
+		for file in directories:
+			with open(file, 'r') as f:
+				file_str = f.read()
+				print file
+				root = ast.parse(file_str)
+				
+				visitor.visit(root)
+		#print func_data
+		#print try_data
+		#print handler_data
+		#print raise_data
+		os.chdir(folder)
+		saveCSV('Function', func_data)
+		saveCSV('Try', try_data)
+		saveCSV('Handler', handler_data)
+		saveCSV('Raise', raise_data)
+		saveCSV('Exception', exception_data)
+		saveCSV('Reraise', reraise_data)
+		os.chdir('../')
+	
+
 class CountVisitor(ast.NodeVisitor):
 	
-	count = 0
+	def __init__(self):
+		self.count = 0
 
 	def visit_Raise(self, node):
 		self.count += 1
@@ -76,14 +120,15 @@ class CountVisitor(ast.NodeVisitor):
 	def visit_Call(self, node):
 		self.count += 1
 
-class FunctionVisitor(ast.NodeVisitor):
+class HandlingVisitor(ast.NodeVisitor):
 
-	visitor = CountVisitor()
-	data = newDict()
-	func_name = ''
-	try_id_number = -1
-	handler_id_number = -1
-	except_flag = []
+	def __init__(self):
+		self.visitor = CountVisitor()
+		self.data = newDict()
+		self.func_name = ''
+		self.try_id_number = -1
+		self.handler_id_number = -1
+		self.except_flag = []
 
 	def visit_Raise(self, node):
 		#reraise_row.append(self.func_name)
@@ -185,23 +230,24 @@ class FunctionVisitor(ast.NodeVisitor):
 
 
 		self.visitor.count = 0
-		super(FunctionVisitor, self).generic_visit(node)
+		super(HandlingVisitor, self).generic_visit(node)
 		self.except_flag.pop()
 
 
 	def visit_ExceptHandler(self, node):
 		self.except_flag.append(1)
-		super(FunctionVisitor, self).generic_visit(node)
+		super(HandlingVisitor, self).generic_visit(node)
 		self.except_flag.pop()
 		
 
-class MyVisitor(ast.NodeVisitor):
+class FunctionVisitor(ast.NodeVisitor):
 
 
 	#files = {}
-	func_visitor = FunctionVisitor()
-	count_visitor = CountVisitor()
-	func_id_number = -1
+	def __init__(self):
+		self.func_visitor = HandlingVisitor()
+		self.count_visitor = CountVisitor()
+		self.func_id_number = -1
 
 	def visit_FunctionDef(self, node):
 		
@@ -216,7 +262,7 @@ class MyVisitor(ast.NodeVisitor):
 		self.func_visitor.data['statements'] = self.count_visitor.count
 
 		##ANALISANDO TRATAMENTO DE EXCECAO
-		super(FunctionVisitor, self.func_visitor).generic_visit(node)
+		super(HandlingVisitor, self.func_visitor).generic_visit(node)
 
 		##CRIANDO LINHA COM OS DADOS
 		func_row.extend((node.name, self.func_id_number, self.func_visitor.data['raise'],
@@ -232,31 +278,12 @@ class MyVisitor(ast.NodeVisitor):
 if __name__ == '__main__':
 
 	import sys
-	import os
 
 	folder = '.' if len(sys.argv) < 2 else sys.argv[1]
-	
 	loadExceptions()
-	directories = getDirectories(folder)
-	visitor = MyVisitor()
-
-	for file in directories:
-		with open(file, 'r') as f:
-			file_str = f.read()
-			print file
-			root = ast.parse(file_str)
-			
-			visitor.visit(root)
-	#print func_data
-	#print try_data
-	#print handler_data
-	#print raise_data
-	saveCSV('Function', func_data)
-	saveCSV('Try', try_data)
-	saveCSV('Handler', handler_data)
-	saveCSV('Raise', raise_data)
-	saveCSV('Exception', exception_data)
-	saveCSV('Reraise', reraise_data)
+	loadHead()	
+	mc = metricCalculator()
+	mc.run(folder)
 
 
 	
