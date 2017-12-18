@@ -82,10 +82,7 @@ class metricCalculator:
 				root = ast.parse(file_str)
 				
 				visitor.visit(root)
-		#print func_data
-		#print try_data
-		#print handler_data
-		#print raise_data
+				
 		os.chdir(folder)
 		saveCSV('Function', func_data)
 		saveCSV('Try', try_data)

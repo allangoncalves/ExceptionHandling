@@ -1,4 +1,0 @@
- - [ ] closes #xxxx
- - [ ] tests added / passed
- - [ ] passes ``git diff upstream/master | flake8 --diff``
- - [ ] whatsnew entry
