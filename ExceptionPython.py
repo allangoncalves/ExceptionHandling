@@ -82,7 +82,7 @@ class metricCalculator:
 				root = ast.parse(file_str)
 				
 				visitor.visit(root)
-				
+
 		os.chdir(folder)
 		saveCSV('Function', func_data)
 		saveCSV('Try', try_data)
@@ -278,9 +278,10 @@ if __name__ == '__main__':
 
 	folder = '.' if len(sys.argv) < 2 else sys.argv[1]
 	loadExceptions()
-	loadHead()	
-	mc = metricCalculator()
-	mc.run(folder)
+	for f in os.listdir(folder):
+		loadHead()	
+		mc = metricCalculator()
+		mc.run(f)
 
 
 	
