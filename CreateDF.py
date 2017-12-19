@@ -10,7 +10,7 @@ import os
 folder = '.' if len(sys.argv) < 2 else sys.argv[1]
 projects= {}
 
-projects[folder] = os.listdir(folder)
+projects[folder] = sorted(os.listdir(folder))
 
 for project, versions in projects.iteritems():
 	print projects, versions
@@ -79,8 +79,8 @@ for project, versions in projects.iteritems():
 	fig3 = df_3.plot(kind='line', marker='o').get_figure()
 	fig4 = df_4.plot(kind='line', marker='o').get_figure()
 	fig5 = df_5.plot(kind='line', marker='o').get_figure()
-	fig1.savefig(project+'-methods')
-	fig2.savefig(project+'-handler')
-	fig3.savefig(project+'-exception')
-	fig4.savefig(project+'-raise')
-	fig5.savefig(project+'-reraise')
+	fig1.savefig(project+'methods')
+	fig2.savefig(project+'handler')
+	fig3.savefig(project+'exception')
+	fig4.savefig(project+'raise')
+	fig5.savefig(project+'reraise')

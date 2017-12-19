@@ -36,11 +36,13 @@ def saveCSV(name, data):
 
 def getDirectories(projectFolder):
 		directories = []
-		for directory, folderName, file in os.walk(projectFolder):
-			if 'test' not in directory:
+		for directory, folderName, file in os.walk('./'+projectFolder):
+			if directory.find('example') == -1 and directory.find('test') == -1:
 				for name in file:
 					if name.endswith(".py"):
 						directories.append(os.path.join(directory, name))
+			else:
+				print 'EAEE'
 		#print directories
 		return directories
 
@@ -83,14 +85,14 @@ class metricCalculator:
 				
 				visitor.visit(root)
 
-		os.chdir(folder)
-		saveCSV('Function', func_data)
-		saveCSV('Try', try_data)
-		saveCSV('Handler', handler_data)
-		saveCSV('Raise', raise_data)
-		saveCSV('Exception', exception_data)
-		saveCSV('Reraise', reraise_data)
-		os.chdir('../')
+		#os.chdir(folder)
+		saveCSV(folder+'/Function', func_data)
+		saveCSV(folder+'/Try', try_data)
+		saveCSV(folder+'/Handler', handler_data)
+		saveCSV(folder+'/Raise', raise_data)
+		saveCSV(folder+'/Exception', exception_data)
+		saveCSV(folder+'/Reraise', reraise_data)
+		#os.chdir('../')
 	
 
 class CountVisitor(ast.NodeVisitor):
@@ -281,7 +283,7 @@ if __name__ == '__main__':
 	for f in os.listdir(folder):
 		loadHead()	
 		mc = metricCalculator()
-		mc.run(f)
+		mc.run(folder+f)
 
 
 	
