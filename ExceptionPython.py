@@ -31,9 +31,6 @@ def saveCSV(name, data):
 		writer = csv.writer(file, delimiter=';')
 		writer.writerows(data)
 
-
-	#print exception_list, len(exception_list)
-
 def getDirectories(projectFolder):
 		directories = []
 		for directory, folderName, file in os.walk('./'+projectFolder):
@@ -41,9 +38,6 @@ def getDirectories(projectFolder):
 				for name in file:
 					if name.endswith(".py"):
 						directories.append(os.path.join(directory, name))
-			else:
-				print 'EAEE'
-		#print directories
 		return directories
 
 def newDict():
@@ -75,6 +69,7 @@ class metricCalculator:
 	def run(self, folder):
 
 		directories = getDirectories(folder)
+		loadHead()
 		visitor = FunctionVisitor()
 
 		for file in directories:
@@ -85,14 +80,12 @@ class metricCalculator:
 				
 				visitor.visit(root)
 
-		#os.chdir(folder)
 		saveCSV(folder+'/Function', func_data)
 		saveCSV(folder+'/Try', try_data)
 		saveCSV(folder+'/Handler', handler_data)
 		saveCSV(folder+'/Raise', raise_data)
 		saveCSV(folder+'/Exception', exception_data)
 		saveCSV(folder+'/Reraise', reraise_data)
-		#os.chdir('../')
 	
 
 class CountVisitor(ast.NodeVisitor):
@@ -281,7 +274,6 @@ if __name__ == '__main__':
 	folder = '.' if len(sys.argv) < 2 else sys.argv[1]
 	loadExceptions()
 	for f in os.listdir(folder):
-		loadHead()	
 		mc = metricCalculator()
 		mc.run(folder+f)
 
