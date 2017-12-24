@@ -7,14 +7,17 @@ import csv
 from ExceptionPython import *
 
 token = ''
-CONST_MAX = 2
+CONST_MAX = 5
 #loadExceptions()
 #mc = metricCalculator()
 
 
 def download_releases(user, repository):
+	if not os.path.exists('resultados'):
+		os.makedirs('resultados')
+	os.chdir('resultados')	
 	if not os.path.exists(repository):
-		request = requests.get('https://api.github.com/repos/'+user+'/'+repository+'/releases', headers={'Authorization': 'token '+token})
+		request = requests.get('https://api.github.com/repos/'+user+'/'+repository+'/releases',)
 		num_of_releases = CONST_MAX
 		if request.ok:
 			content = json.loads(request.content)
@@ -25,7 +28,7 @@ def download_releases(user, repository):
 				os.makedirs(repository)
 				os.chdir(repository)
 				for release in content:
-					file_name = release['tag_name']
+					file_name = release['published_at'].split('T')[0]
 					print file_name
 					urllib.urlretrieve(release['zipball_url'], file_name+'.zip')
 					zipdata = zipfile.ZipFile(file_name+'.zip')
