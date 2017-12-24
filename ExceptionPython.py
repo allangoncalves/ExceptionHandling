@@ -33,7 +33,7 @@ def saveCSV(name, data):
 
 def getDirectories(projectFolder):
 		directories = []
-		for directory, folderName, file in os.walk('./'+projectFolder):
+		for directory, folderName, file in os.walk(projectFolder):
 			if directory.find('example') == -1 and directory.find('test') == -1:
 				for name in file:
 					if name.endswith(".py"):
@@ -45,9 +45,9 @@ def newDict():
 			're-raise': 0, 'statements': 0}.copy()
 
 def loadExceptions():
+	global exception_list
 	with open('ExceptionsDB.txt', 'rb') as file:
-		for exception in file:
-			exception_list.append(exception.split('\n')[0])
+		exception_list = file.read().split(';')
 
 def loadHead():
 	global func_data, try_data, handler_data, exception_data, raise_data, reraise_data
@@ -80,12 +80,12 @@ class metricCalculator:
 				
 				visitor.visit(root)
 
-		saveCSV(folder+'/Function', func_data)
-		saveCSV(folder+'/Try', try_data)
-		saveCSV(folder+'/Handler', handler_data)
-		saveCSV(folder+'/Raise', raise_data)
-		saveCSV(folder+'/Exception', exception_data)
-		saveCSV(folder+'/Reraise', reraise_data)
+		saveCSV(os.path.join(folder, 'Function'), func_data)
+		saveCSV(os.path.join(folder, 'Try'), try_data)
+		saveCSV(os.path.join(folder, 'Handler'), handler_data)
+		saveCSV(os.path.join(folder, 'Raise'), raise_data)
+		saveCSV(os.path.join(folder, 'Exception'), exception_data)
+		saveCSV(os.path.join(folder, 'Reraise'), reraise_data)
 	
 
 class CountVisitor(ast.NodeVisitor):
@@ -275,7 +275,7 @@ if __name__ == '__main__':
 	loadExceptions()
 	for f in os.listdir(folder):
 		mc = metricCalculator()
-		mc.run(folder+f)
+		mc.run(os.path.join(folder, f))
 
 
 	
