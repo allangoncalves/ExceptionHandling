@@ -14,31 +14,49 @@ CONST_MAX = 100
 
 def download_releases(user, repository):
 	if not os.path.exists(repository):
-		request = requests.get('https://api.github.com/repos/'+user+'/'+repository+'/releases', headers={'Authorization': 'token '+token})
-		num_of_releases = CONST_MAX
+		##SEND A GET REQUEST FOR THE GITHUB API
+		request = requests.get('https://api.github.com/repos/'+user+'/'+repository+'/tags', headers={'Authorization': 'token '+token})
+		num_of_tags = CONST_MAX
 		if request.ok:
 			content = json.loads(request.content)
 			if len(content) < 2:
 				return
-				print 'too few releases' 
+				print 'too few tags' 
 			else:
 				os.makedirs(repository)
 				os.chdir(repository)
-				for release in content:
-					file_name = release['published_at'].split('T')[0]
+				for tag in content:
+					
+					##GET INFO FROM THE COMMIT
+					request2 = requests.get(tag['commit']['url'])
+					if request2.ok:
+						content2 = json.loads(request2.content) 
+						file_name = content2['commit']['committer']['date'].split('T')[0]
+					else:
+						return
+					###
+
+					##GET ONLY THE LAST COMMIT FROM THE DAY
 					if os.path.exists(file_name):
 						continue
+					###
+
+					##DOWNLOAD AND EXTRACT THE FILES
 					print file_name
-					urllib.urlretrieve(release['zipball_url'], file_name+'.zip')
+					urllib.urlretrieve(tag['zipball_url'], file_name+'.zip')
 					zipdata = zipfile.ZipFile(file_name+'.zip')
 					zipdata.extractall()
 					print zipdata.namelist()[0]
 					os.rename(zipdata.namelist()[0], file_name)
 					zipdata.close()
 					os.remove(file_name+'.zip')
-					num_of_releases -= 1
-					if num_of_releases == 0:
+					###
+
+					##LIMITS THE NUMBER OF TAGS
+					num_of_tags -= 1
+					if num_of_tags == 0:
 						break
+					###
 				os.chdir('../')
 				print 'done'
 		else:
