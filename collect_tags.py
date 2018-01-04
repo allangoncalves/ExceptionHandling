@@ -11,7 +11,7 @@ token = '050dda8096403012903be8313d4f6e5638993f83'
 #mc = metricCalculator()
 
 
-def download_releases(user, repository, CONST_MAX=100):
+def download_releases(user, repository, CONST_MAX=-1):
 	if not os.path.exists(repository):
 		##SEND A GET REQUEST FOR THE GITHUB API
 		request = requests.get('https://api.github.com/repos/'+user+'/'+repository+'/tags', headers={'Authorization': 'token '+token})
