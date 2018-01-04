@@ -80,4 +80,4 @@ if __name__ == '__main__':
 	elif len(sys.argv) == 3:
 		download_releases(sys.argv[1], sys.argv[2])
 	elif len(sys.argv) == 4:
-		download_releases(sys.argv[1], sys.argv[2], sys.argv[3])
+		download_releases(sys.argv[1], sys.argv[2], int(sys.argv[3]))
