@@ -7,20 +7,19 @@ import csv
 from calculate_metrics import *
 
 token = '050dda8096403012903be8313d4f6e5638993f83'
-CONST_MAX = 100
 #loadExceptions()
 #mc = metricCalculator()
 
 
-def download_releases(user, repository):
+def download_releases(user, repository, CONST_MAX=100):
 	if not os.path.exists(repository):
 		request = requests.get('https://api.github.com/repos/'+user+'/'+repository+'/releases', headers={'Authorization': 'token '+token})
 		num_of_releases = CONST_MAX
 		if request.ok:
 			content = json.loads(request.content)
 			if len(content) < 2:
-				return
 				print 'too few releases' 
+				return
 			else:
 				os.makedirs(repository)
 				os.chdir(repository)
