@@ -7,12 +7,11 @@ import csv
 from calculate_metrics import *
 
 token = '050dda8096403012903be8313d4f6e5638993f83'
-CONST_MAX = 100
 #loadExceptions()
 #mc = metricCalculator()
 
 
-def download_releases(user, repository):
+def download_releases(user, repository, CONST_MAX=100):
 	if not os.path.exists(repository):
 		##SEND A GET REQUEST FOR THE GITHUB API
 		request = requests.get('https://api.github.com/repos/'+user+'/'+repository+'/tags', headers={'Authorization': 'token '+token})
@@ -80,3 +79,5 @@ if __name__ == '__main__':
 				download_releases(user, repository)
 	elif len(sys.argv) == 3:
 		download_releases(sys.argv[1], sys.argv[2])
+	elif len(sys.argv) == 4:
+		download_releases(sys.argv[1], sys.argv[2], sys.argv[3])
